@@ -1,6 +1,6 @@
 {% set name = "mfront" %}
-{% set version = "3.3.2" %}
-{% set sha256 = "17127ffdf92367c10041258f70a88ac3dcb0a7d89c1766a6aa1ebaeb4d03d55d" %}
+{% set version = "4.1.0" %}
+{% set sha256 = "7505c41da9df5fb3c281651ff29b58a18fd4d91b92f839322f0267269c5f1375" %}
 
 package:
   name: {{ name|lower }}
@@ -12,7 +12,7 @@ source:
   sha256: {{ sha256 }}
 
 build:
-  number: 1
+  number: 0
   skip: true  # [py2k or osx or win or (python_impl == 'pypy')]
   detect_binary_files_with_prefix: true
   run_exports:
