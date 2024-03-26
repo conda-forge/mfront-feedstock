@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -ex
 
 echo "**************** M F R O N T  B U I L D  S T A R T S  H E R E ****************"
 

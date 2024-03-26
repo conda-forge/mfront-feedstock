@@ -24,12 +24,18 @@ fortran_compiler_version:
 - '12'
 libboost_python_devel:
 - '1.84'
+mpi:
+- nompi
+mpich:
+- '4'
+openmpi:
+- '4'
 pin_run_as_build:
   python:
     min_pin: x.x
     max_pin: x.x
 python:
-- 3.12.* *_cpython
+- 3.8.* *_cpython
 python_impl:
 - cpython
 target_platform:

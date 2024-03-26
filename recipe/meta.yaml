@@ -1,6 +1,15 @@
 {% set name = "mfront" %}
 {% set version = "4.2.0" %}
 {% set sha256 = "cf8a309c4d19a8e36232f8540ff28aa0d6285645f8dfb1ac57dd481ba3453e02" %}
+{% set build = 3 %}
+
+# ensure mpi is defined (needed for conda-smithy recipe-lint)
+{% set mpi = mpi or 'nompi' %}
+
+{% if mpi == 'nompi' %}
+# prioritize nompi variant via build number
+{% set build = build + 100 %}
+{% endif %}
 
 package:
   name: {{ name|lower }}
@@ -14,12 +23,25 @@ source:
     - patches/fix_v4_2_0_clang_win.patch  # [win]
     - patches/override_site_package_dir_for_windows.patch  # [win]
 build:
-  number: 2
+  number: {{ build }}
   skip: true  # [py2k or osx or (python_impl == 'pypy')]
   skip: true  # [win and py<39]
+  # Per https://conda-forge.org/docs/maintainer/knowledge_base.html#preferring-a-provider-usually-nompi
+  # add build string so packages can depend on
+  # mpi or nompi variants explicitly:
+  # `pkg * mpi_mpich_*` for mpich
+  # `pkg * mpi_*` for any mpi
+  # `pkg * nompi_*` for no mpi
+
+  {% if mpi != 'nompi' %}
+  {% set mpi_prefix = "mpi_" + mpi %}
+  {% else %}
+  {% set mpi_prefix = "nompi" %}
+  {% endif %}
+  string: "{{ mpi_prefix }}_h{{ PKG_HASH }}_{{ build }}"  
   detect_binary_files_with_prefix: true
   run_exports:
-    - {{ pin_subpackage('mfront', max_pin='x.x.x') }}
+    - {{ pin_subpackage('mfront', max_pin='x.x.x') }} {{ mpi_prefix }}_*
 
 requirements:
   build:
@@ -38,10 +60,12 @@ requirements:
     - libboost-python-devel
     - python
     - zlib  # [linux]
+    - {{ mpi }}  # [mpi != 'nompi']    
   run:
     - python
     - libstdcxx-ng  # [linux]
     - libgcc-ng  # [linux]
+    - {{ mpi }}  # [mpi != 'nompi']    
 
 test:
   commands:
