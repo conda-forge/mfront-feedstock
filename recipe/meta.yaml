@@ -15,8 +15,7 @@ source:
 
 build:
   number: 3
-  skip: true  # [py2k or osx or (python_impl == 'pypy')]
-  skip: true  # [win and py<39]
+  skip: true  # [osx]
   detect_binary_files_with_prefix: true
   run_exports:
     - {{ pin_subpackage('mfront', max_pin='x.x.x') }}
