@@ -39,8 +39,6 @@ requirements:
     - zlib  # [linux]
   run:
     - python
-    - libstdcxx-ng  # [linux]
-    - libgcc-ng  # [linux]
 
 test:
   commands:
