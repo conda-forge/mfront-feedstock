@@ -23,16 +23,14 @@ build:
 
 requirements:
   build:
-    - {{ compiler('fortran') }}  # [not win]
     - {{ compiler('c') }}
     - {{ stdlib("c") }}
     - {{ compiler('cxx') }}
+    - {{ compiler('fortran') }}
     - cmake
     - make  # [not win]
     - ninja                       # [win]
-    - flang                       # [win]
     - clang                       # [win]
-    - lld                         # [win]
     - libgomp  # [linux]
     - llvm-openmp  # [osx]    
   host:
