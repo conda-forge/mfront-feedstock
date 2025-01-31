@@ -28,8 +28,6 @@ llvm_openmp:
 - '18'
 macos_machine:
 - x86_64-apple-darwin13.4.0
-numpy:
-- '1.22'
 pin_run_as_build:
   python:
     min_pin: x.x
@@ -42,5 +40,3 @@ zip_keys:
 - - c_compiler_version
   - cxx_compiler_version
   - fortran_compiler_version
-- - python
-  - numpy
