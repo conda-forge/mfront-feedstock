@@ -15,7 +15,7 @@ source:
     - patches/fix_Issue_703.patch
 
 build:
-  number: 1
+  number: 2
   detect_binary_files_with_prefix: true
   run_exports:
     - {{ pin_subpackage('mfront', max_pin='x.x.x') }}
