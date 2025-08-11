@@ -16,7 +16,7 @@ source:
     - patches/remove_numpy_init_wrap.patch
 
 build:
-  number: 0
+  number: 6
   detect_binary_files_with_prefix: true
   run_exports:
     - {{ pin_subpackage('mfront', max_pin='x.x.x') }}
@@ -44,6 +44,7 @@ requirements:
     - zlib  # [linux]
   run:
     - python
+    - libboost
 
 test:
   commands:
