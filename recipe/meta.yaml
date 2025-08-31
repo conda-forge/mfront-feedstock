@@ -38,7 +38,7 @@ requirements:
     - libgomp  # [linux]
     - llvm-openmp  # [osx]
   host:
-    - libboost-devel
+    - libboost-python-devel
     - numpy
     - python
     - zlib  # [linux]
