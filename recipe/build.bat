@@ -68,11 +68,12 @@ echo Applying patches...
 patch -p1 -i "%RECIPE_DIR%\patches\support_llvm-flang.patch"
 if errorlevel 1 exit /b 1
 
-patch -p1 -i "%RECIPE_DIR%\patches\fix_Issue_703.patch"
-if errorlevel 1 exit /b 1
+@REM The following patches are already applied in version 5.0.1 and above
+@REM patch -p1 -i "%RECIPE_DIR%\patches\fix_Issue_703.patch"
+@REM if errorlevel 1 exit /b 1
 
-patch -p1 -i "%RECIPE_DIR%\patches\remove_numpy_init_wrap.patch"
-if errorlevel 1 exit /b 1
+@REM patch -p1 -i "%RECIPE_DIR%\patches\remove_numpy_init_wrap.patch"
+@REM if errorlevel 1 exit /b 1
 
 echo Patches applied successfully
 
@@ -95,18 +96,43 @@ if not exist "%PYTHON_LIB%" (
 )
 echo Using Python library: %PYTHON_LIB%
 
+REM Get numpy include path using Python
+for /f "delims=" %%i in ('%PYTHON% -c "import numpy; print(numpy.get_include())"') do set NUMPY_INCLUDE=%%i
+if "%NUMPY_INCLUDE%"=="" (
+    echo ERROR: Cannot find numpy include directory
+    exit /b 1
+)
+echo Using numpy include: %NUMPY_INCLUDE%
+
+REM Add numpy include to compiler flags
+set "CXXFLAGS=%CXXFLAGS% -I%NUMPY_INCLUDE%"
+
+REM Get Python library directory
+set PYTHON_LIBDIR=%PREFIX%\libs
+echo Python library directory: %PYTHON_LIBDIR%
+
+REM Add Python library path to linker flags
+set "LDFLAGS=%LDFLAGS% /LIBPATH:%PYTHON_LIBDIR%"
+
 REM Use forward slashes for CMake paths to avoid issues
 set "CMAKE_PREFIX=%PREFIX:\=/%"
 set "CMAKE_LIBRARY_PREFIX=%LIBRARY_PREFIX:\=/%"
 set "CMAKE_PYTHON=%PYTHON:\=/%"
 set "CMAKE_PYTHON_LIB=%PYTHON_LIB:\=/%"
+set "CMAKE_PYTHON_LIBDIR=%PYTHON_LIBDIR:\=/%"
 set "CMAKE_SP_DIR=%SP_DIR:\=/%"
+set "CMAKE_NUMPY_INCLUDE=%NUMPY_INCLUDE:\=/%"
 
 echo Installing to PREFIX: %PREFIX%
 echo CMAKE_INSTALL_PREFIX: %CMAKE_PREFIX%
 echo Python site-packages: %SP_DIR%
 echo CMAKE_SP_DIR: %CMAKE_SP_DIR%
+echo Python library path: %PYTHON_LIBDIR%
 echo.
+
+REM Set linker flags for CMake to include Python library directory
+set "CMAKE_SHARED_LINKER_FLAGS=/LIBPATH:%PYTHON_LIBDIR%"
+set "CMAKE_MODULE_LINKER_FLAGS=/LIBPATH:%PYTHON_LIBDIR%"
 
 cmake -B build . -G "Ninja" -Wno-dev ^
     -D CMAKE_INSTALL_PREFIX:PATH=%CMAKE_PREFIX% ^
@@ -116,8 +142,11 @@ cmake -B build . -G "Ninja" -Wno-dev ^
     -D CMAKE_LINKER=lld-link ^
     -D CMAKE_NM=llvm-nm ^
     -D CMAKE_BUILD_TYPE=Release ^
+    -D CMAKE_SHARED_LINKER_FLAGS:STRING="%CMAKE_SHARED_LINKER_FLAGS%" ^
+    -D CMAKE_MODULE_LINKER_FLAGS:STRING="%CMAKE_MODULE_LINKER_FLAGS%" ^
     -D enable-fortran=ON ^
     -D enable-python-bindings=ON ^
+    -D enable-numpy-support=ON ^
     -D enable-cyrano=ON ^
     -D enable-aster=ON ^
     -D enable-lsdyna=ON ^
@@ -132,7 +161,10 @@ cmake -B build . -G "Ninja" -Wno-dev ^
     -D enable-python=ON ^
     -D PYTHON_EXECUTABLE:FILEPATH=%CMAKE_PYTHON% ^
     -D PYTHON_LIBRARY:FILEPATH=%CMAKE_PYTHON_LIB% ^
+    -D PYTHON_LIBRARIES:FILEPATH=%CMAKE_PYTHON_LIB% ^
+    -D PYTHON_LIBRARY_PATH:PATH=%CMAKE_PYTHON_LIBDIR% ^
     -D PYTHON_INCLUDE_DIRS:PATH=%CMAKE_LIBRARY_PREFIX%/include ^
+    -D PYTHON_NUMPY_INCLUDE_DIR:PATH=%CMAKE_NUMPY_INCLUDE% ^
     -D TFEL_PYTHON_SITE_PACKAGES_DIR:PATH=%CMAKE_SP_DIR% ^
     -D USE_EXTERNAL_COMPILER_FLAGS=ON
 
