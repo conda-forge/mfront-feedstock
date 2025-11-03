@@ -26,24 +26,20 @@ requirements:
     - ${{ stdlib("c") }}
     - ${{ compiler('cxx') }}
     - if: build_platform != target_platform
-      then: python
-    - if: build_platform != target_platform
-      then: cross-python_${{ target_platform }}
-    - if: build_platform != target_platform
-      then: numpy
+      then:
+        - python
+        - cross-python_${{ target_platform }}
+        - numpy
     - cmake <4
+    - if: win
+      then:
+        - ninja
+        - m2-tar
+        - m2-gzip
+        - m2-patch
+        - clang
     - if: not win
       then: make
-    - if: win
-      then: ninja
-    - if: win
-      then: m2-tar
-    - if: win
-      then: m2-gzip
-    - if: win
-      then: m2-patch
-    - if: win
-      then: clang
     - if: osx
       then: llvm-openmp
   host:
@@ -87,7 +83,7 @@ tests:
 
 about:
   license: GPL-3.0-only
-  license_file: LICENCE-GNU-GPL
+  license_file: tfel-TFEL-${{ version }}/LICENCE-GNU-GPL
   summary: MFront, a code generation tool dedicated to material knowledge
   description: |
     MFront is a code generator which translates a set of closely related domain specific languages into plain C++ on top of the TFEL library. Those languages cover three kinds of material knowledge:
