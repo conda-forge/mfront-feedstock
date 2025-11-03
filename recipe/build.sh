@@ -33,12 +33,6 @@ tar -xzf "${TARBALL_NAME}"
 cd "tfel-TFEL-${PKG_VERSION}"
 echo "Extraction complete, current directory: $(pwd)"
 
-# Apply patches
-echo "Applying patches..."
-patch -p1 -i "${RECIPE_DIR}/patches/fix_Issue_703.patch"
-patch -p1 -i "${RECIPE_DIR}/patches/remove_numpy_init_wrap.patch"
-echo "Patches applied successfully"
-
 # https://docs.conda.io/projects/conda-build/en/latest/resources/compiler-tools.html#an-aside-on-cmake-and-sysroots
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="$LDFLAGS -lm -lpthread -ldl -lz -lomp"

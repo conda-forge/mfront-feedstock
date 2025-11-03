@@ -114,6 +114,10 @@ echo Python library directory: %PYTHON_LIBDIR%
 REM Add Python library path to linker flags
 set "LDFLAGS=%LDFLAGS% /LIBPATH:%PYTHON_LIBDIR%"
 
+REM Get Python include directory
+for /f "delims=" %%i in ('%PYTHON% -c "import sysconfig; print(sysconfig.get_path('include'))"') do set PYTHON_INCLUDE_DIR=%%i
+echo Python include directory: %PYTHON_INCLUDE_DIR%
+
 REM Use forward slashes for CMake paths to avoid issues
 set "CMAKE_PREFIX=%PREFIX:\=/%"
 set "CMAKE_LIBRARY_PREFIX=%LIBRARY_PREFIX:\=/%"
@@ -122,12 +126,14 @@ set "CMAKE_PYTHON_LIB=%PYTHON_LIB:\=/%"
 set "CMAKE_PYTHON_LIBDIR=%PYTHON_LIBDIR:\=/%"
 set "CMAKE_SP_DIR=%SP_DIR:\=/%"
 set "CMAKE_NUMPY_INCLUDE=%NUMPY_INCLUDE:\=/%"
+set "CMAKE_PYTHON_INCLUDE_DIR=%PYTHON_INCLUDE_DIR:\=/%"
 
 echo Installing to PREFIX: %PREFIX%
 echo CMAKE_INSTALL_PREFIX: %CMAKE_PREFIX%
 echo Python site-packages: %SP_DIR%
 echo CMAKE_SP_DIR: %CMAKE_SP_DIR%
 echo Python library path: %PYTHON_LIBDIR%
+echo Python include path: %PYTHON_INCLUDE_DIR%
 echo.
 
 REM Set linker flags for CMake to include Python library directory
@@ -163,8 +169,15 @@ cmake -B build . -G "Ninja" -Wno-dev ^
     -D PYTHON_LIBRARY:FILEPATH=%CMAKE_PYTHON_LIB% ^
     -D PYTHON_LIBRARIES:FILEPATH=%CMAKE_PYTHON_LIB% ^
     -D PYTHON_LIBRARY_PATH:PATH=%CMAKE_PYTHON_LIBDIR% ^
-    -D PYTHON_INCLUDE_DIRS:PATH=%CMAKE_LIBRARY_PREFIX%/include ^
+    -D PYTHON_INCLUDE_DIRS:PATH=%CMAKE_PYTHON_INCLUDE_DIR% ^
     -D PYTHON_NUMPY_INCLUDE_DIR:PATH=%CMAKE_NUMPY_INCLUDE% ^
+    -D Python_EXECUTABLE:FILEPATH=%CMAKE_PYTHON% ^
+    -D Python_LIBRARY:FILEPATH=%CMAKE_PYTHON_LIB% ^
+    -D Python_LIBRARIES:FILEPATH=%CMAKE_PYTHON_LIB% ^
+    -D Python_INCLUDE_DIR:PATH=%CMAKE_PYTHON_INCLUDE_DIR% ^
+    -D Python_INCLUDE_DIRS:PATH=%CMAKE_PYTHON_INCLUDE_DIR% ^
+    -D Python_NumPy_INCLUDE_DIR:PATH=%CMAKE_NUMPY_INCLUDE% ^
+    -D Python_NumPy_INCLUDE_DIRS:PATH=%CMAKE_NUMPY_INCLUDE% ^
     -D TFEL_PYTHON_SITE_PACKAGES_DIR:PATH=%CMAKE_SP_DIR% ^
     -D USE_EXTERNAL_COMPILER_FLAGS=ON
 
