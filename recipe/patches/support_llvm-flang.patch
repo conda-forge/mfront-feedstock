@@ -6,8 +6,8 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
 diff --git a/cmake/modules/gnu-fortran-compiler.cmake b/cmake/modules/gnu-fortran-compiler.cmake
---- a/cmake/modules/gnu-fortran-compiler.cmake	(revision 25002f8861bcce1f83966e8c7557d3e6c0a141aa)
-+++ b/cmake/modules/gnu-fortran-compiler.cmake	(date 1712921017926)
+--- a/cmake/modules/gnu-fortran-compiler.cmake	(revision 85554f233306548d8c9c4d36af54b715c608b8c7)
++++ b/cmake/modules/gnu-fortran-compiler.cmake	(date 1762160843301)
 @@ -1,7 +1,8 @@
  get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
  if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
