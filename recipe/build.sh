@@ -51,6 +51,10 @@ else
 fi
 
 export LIBPATH="$PREFIX/lib $LIBPATH"
+
+# Add numpy include to CXXFLAGS environment variable so it's picked up by all targets
+export CXXFLAGS="${CXXFLAGS} -I${NUMPY_INCLUDE_DIR}"
+
 cmake ${CMAKE_ARGS} -Wno-dev \
          -DCMAKE_BUILD_TYPE=Release \
          -Dlocal-castem-header=ON \
@@ -77,6 +81,7 @@ cmake ${CMAKE_ARGS} -Wno-dev \
          -DPYTHON_LIBRARY="${PREFIX}/lib/libpython${PY_VER}${SHLIB_EXT}" \
          -DPYTHON_LIBRARIES="${PREFIX}/lib/libpython${PY_VER}${SHLIB_EXT}" \
          -DPYTHON_NUMPY_INCLUDE_DIR=${NUMPY_INCLUDE_DIR} \
+         -DNUMPY_INCLUDE_DIRS=${NUMPY_INCLUDE_DIR} \
          -DPython_EXECUTABLE:FILEPATH=${PYTHON} \
          -DPython_INCLUDE_DIR=${PYTHON_INCLUDE_DIR} \
          -DPython_INCLUDE_DIRS=${PYTHON_INCLUDE_DIR} \
