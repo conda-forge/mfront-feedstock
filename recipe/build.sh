@@ -3,6 +3,42 @@ set -e
 
 echo "**************** M F R O N T  B U I L D  S T A R T S  H E R E ****************"
 
+# The source cache location is typically in output/src_cache
+# We need to find and copy the tarball from the source cache
+TARBALL_NAME="tfel-TFEL-${PKG_VERSION}.tar.gz"
+
+# First check if tarball is already in SRC_DIR
+if [ -f "${SRC_DIR}/${TARBALL_NAME}" ]; then
+    echo "Found tarball in SRC_DIR"
+else
+    # Look for it in the source cache (parent of work dir)
+    CACHED_TARBALL=$(find "${SRC_DIR}/../../src_cache" -name "tfel-TFEL-5_0_0*.tar.gz" 2>/dev/null | head -n 1)
+    if [ -n "$CACHED_TARBALL" ] && [ -f "$CACHED_TARBALL" ]; then
+        echo "Found tarball in source cache: $CACHED_TARBALL"
+        cp "$CACHED_TARBALL" "${SRC_DIR}/${TARBALL_NAME}"
+    else
+        echo "ERROR: Source tarball not found"
+        echo "Looking in: ${SRC_DIR}"
+        ls -la "${SRC_DIR}"
+        echo "Looking in source cache: ${SRC_DIR}/../../src_cache/"
+        ls -la "${SRC_DIR}/../../src_cache/" || true
+        exit 1
+    fi
+fi
+
+# Extract the source tarball
+echo "Extracting source tarball..."
+cd "${SRC_DIR}"
+tar -xzf "${TARBALL_NAME}"
+cd "tfel-TFEL-${PKG_VERSION}"
+echo "Extraction complete, current directory: $(pwd)"
+
+# Apply patches
+echo "Applying patches..."
+patch -p1 -i "${RECIPE_DIR}/patches/fix_Issue_703.patch"
+patch -p1 -i "${RECIPE_DIR}/patches/remove_numpy_init_wrap.patch"
+echo "Patches applied successfully"
+
 # https://docs.conda.io/projects/conda-build/en/latest/resources/compiler-tools.html#an-aside-on-cmake-and-sysroots
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="$LDFLAGS -lm -lpthread -ldl -lz -lomp"

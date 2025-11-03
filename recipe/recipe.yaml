@@ -12,12 +12,7 @@ package:
 source:
   url: https://github.com/thelfer/tfel/archive/refs/tags/TFEL-${{ version }}.tar.gz
   sha256: ${{ sha256 }}
-  file_name: ${{ name }}_${{ version }}.tar.gz
-  patches:
-    - if: win
-      then: patches/support_llvm-flang.patch
-    - patches/fix_Issue_703.patch
-    - patches/remove_numpy_init_wrap.patch
+  file_name: tfel-TFEL-${{ version }}.tar.gz
 
 build:
   number: 7
@@ -42,11 +37,13 @@ requirements:
     - if: win
       then: ninja
     - if: win
-      then: clang
+      then: m2-tar
     - if: win
-      then: lld
-    - if: linux
-      then: libgomp
+      then: m2-gzip
+    - if: win
+      then: m2-patch
+    - if: win
+      then: clang
     - if: osx
       then: llvm-openmp
   host:
