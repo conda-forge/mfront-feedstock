@@ -33,6 +33,16 @@ tar -xzf "${TARBALL_NAME}"
 cd "tfel-TFEL-${PKG_VERSION}"
 echo "Extraction complete, current directory: $(pwd)"
 
+# Note: Patches for fix_Issue_703 and remove_numpy_init_wrap are not needed
+# for TFEL 5.0.1 as these fixes are already in the upstream source
+
+# Get Python and NumPy include directories dynamically
+PYTHON_INCLUDE_DIR=$(${PYTHON} -c "import sysconfig; print(sysconfig.get_path('include'))")
+NUMPY_INCLUDE_DIR=$(${PYTHON} -c "import numpy; print(numpy.get_include())")
+
+echo "Python include directory: ${PYTHON_INCLUDE_DIR}"
+echo "NumPy include directory: ${NUMPY_INCLUDE_DIR}"
+
 # https://docs.conda.io/projects/conda-build/en/latest/resources/compiler-tools.html#an-aside-on-cmake-and-sysroots
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="$LDFLAGS -lm -lpthread -ldl -lz -lomp"
@@ -54,16 +64,27 @@ cmake ${CMAKE_ARGS} -Wno-dev \
          -Denable-diana-fea=ON \
          -Denable-ansys=ON \
          -DPython_ADDITIONAL_VERSIONS=${CONDA_PY} \
-         -DPYTHON_INCLUDE_DIRS=${PREFIX}/include \
-         -DPYTHON_INCLUDE_DIR=${PREFIX}/include/python${PY_VER} \
-         -DPYTHON_LIBRARY="${PREFIX}/lib/libpython${PY_VER}${SHLIB_EXT}" \
-         -DCOMPILER_CXXFLAGS="-I${PREFIX}/include -w" \
          -Denable-python=ON \
          -Denable-python-bindings=ON \
          -Denable-numpy-support=ON \
          -Denable-portable-build=ON \
          -DCMAKE_INSTALL_PREFIX=$PREFIX \
          -DUSE_EXTERNAL_COMPILER_FLAGS=ON \
+         -DCOMPILER_CXXFLAGS="-I${PREFIX}/include -I${NUMPY_INCLUDE_DIR} -w" \
+         -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON} \
+         -DPYTHON_INCLUDE_DIRS=${PYTHON_INCLUDE_DIR} \
+         -DPYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR} \
+         -DPYTHON_LIBRARY="${PREFIX}/lib/libpython${PY_VER}${SHLIB_EXT}" \
+         -DPYTHON_LIBRARIES="${PREFIX}/lib/libpython${PY_VER}${SHLIB_EXT}" \
+         -DPYTHON_NUMPY_INCLUDE_DIR=${NUMPY_INCLUDE_DIR} \
+         -DPython_EXECUTABLE:FILEPATH=${PYTHON} \
+         -DPython_INCLUDE_DIR=${PYTHON_INCLUDE_DIR} \
+         -DPython_INCLUDE_DIRS=${PYTHON_INCLUDE_DIR} \
+         -DPython_LIBRARY="${PREFIX}/lib/libpython${PY_VER}${SHLIB_EXT}" \
+         -DPython_LIBRARIES="${PREFIX}/lib/libpython${PY_VER}${SHLIB_EXT}" \
+         -DPython_NumPy_INCLUDE_DIR=${NUMPY_INCLUDE_DIR} \
+         -DPython_NumPy_INCLUDE_DIRS=${NUMPY_INCLUDE_DIR} \
+         -DTFEL_PYTHON_SITE_PACKAGES_DIR:PATH=${SP_DIR} \
          -S . -B build
 
 cmake --build ./build --config Release -j ${CPU_COUNT}
