@@ -79,29 +79,19 @@ echo Patches applied successfully
 set FC=flang-new
 set "CXXFLAGS=%CXXFLAGS% -Wno-error=missing-template-arg-list-after-template-kw"
 
-REM Debug: Print environment variables
-echo.
-echo Environment variables:
-echo PREFIX=%PREFIX%
-echo LIBRARY_PREFIX=%LIBRARY_PREFIX%
-echo PYTHON=%PYTHON%
-echo CONDA_PY=%CONDA_PY%
-echo SP_DIR=%SP_DIR%
-echo.
+REM Get Python version from environment (rattler-build sets PY_VER=3.13, we need 313)
+REM Strip dots to get version in format pythonXYZ.lib expects (e.g., 3.13 -> 313)
+set PYTHON_VER_NODOTS=%PY_VER:.=%
+echo Python version: %PY_VER% (using %PYTHON_VER_NODOTS% for library name)
 
-REM Find Python library - it's named python<version>.lib, not python.lib
-set PYTHON_LIB=%PREFIX%\libs\python%CONDA_PY%.lib
+REM Find Python library - it's named python<version>.lib
+set PYTHON_LIB=%PREFIX%\libs\python%PYTHON_VER_NODOTS%.lib
 if not exist "%PYTHON_LIB%" (
-    echo Warning: %PYTHON_LIB% not found, trying alternative locations...
-    if exist "%PREFIX%\libs\python3.lib" (
-        set PYTHON_LIB=%PREFIX%\libs\python3.lib
-    ) else if exist "%LIBRARY_LIB%\python%CONDA_PY%.lib" (
-        set PYTHON_LIB=%LIBRARY_LIB%\python%CONDA_PY%.lib
-    ) else (
-        echo ERROR: Cannot find Python library file
-        dir "%PREFIX%\libs\"
-        exit /b 1
-    )
+    echo ERROR: Cannot find Python library file
+    echo Expected: %PYTHON_LIB%
+    echo Contents of %PREFIX%\libs\:
+    dir "%PREFIX%\libs\" 2>nul
+    exit /b 1
 )
 echo Using Python library: %PYTHON_LIB%
 
@@ -112,7 +102,14 @@ set "CMAKE_PYTHON=%PYTHON:\=/%"
 set "CMAKE_PYTHON_LIB=%PYTHON_LIB:\=/%"
 set "CMAKE_SP_DIR=%SP_DIR:\=/%"
 
+echo Installing to PREFIX: %PREFIX%
+echo CMAKE_INSTALL_PREFIX: %CMAKE_PREFIX%
+echo Python site-packages: %SP_DIR%
+echo CMAKE_SP_DIR: %CMAKE_SP_DIR%
+echo.
+
 cmake -B build . -G "Ninja" -Wno-dev ^
+    -D CMAKE_INSTALL_PREFIX:PATH=%CMAKE_PREFIX% ^
     %CMAKE_ARGS% ^
     -D CMAKE_CXX_COMPILER=clang-cl ^
     -D CMAKE_C_COMPILER=clang-cl ^
@@ -131,12 +128,12 @@ cmake -B build . -G "Ninja" -Wno-dev ^
     -D enable-ansys=ON ^
     -D disable-website=ON ^
     -D enable-portable-build=ON ^
-    -D Python_ADDITIONAL_VERSIONS=%CONDA_PY% ^
+    -D Python_ADDITIONAL_VERSIONS=%PY_VER% ^
     -D enable-python=ON ^
     -D PYTHON_EXECUTABLE:FILEPATH=%CMAKE_PYTHON% ^
     -D PYTHON_LIBRARY:FILEPATH=%CMAKE_PYTHON_LIB% ^
     -D PYTHON_INCLUDE_DIRS:PATH=%CMAKE_LIBRARY_PREFIX%/include ^
-    -D TFEL_PYTHON_SITE_PACKAGES_DIR:PATH=%SP_DIR% ^
+    -D TFEL_PYTHON_SITE_PACKAGES_DIR:PATH=%CMAKE_SP_DIR% ^
     -D USE_EXTERNAL_COMPILER_FLAGS=ON
 
 IF ERRORLEVEL 1 (
@@ -148,12 +145,36 @@ echo.
 echo CMake configuration successful, starting build...
 echo.
 
-REM Adjust the parallel build command as needed; for example, you can replace $(nproc) with the number of cores on your machine
+REM Build and install
 cmake --build build --target install
 
 IF ERRORLEVEL 1 (
-  echo ERROR: Build failed
+  echo ERROR: Build or installation failed
   if exist configure.log type configure.log
+  if exist build\CMakeFiles\CMakeError.log (
+      echo.
+      echo CMake Error Log:
+      type build\CMakeFiles\CMakeError.log
+  )
   exit /b 1
 )
+
+echo.
 echo MFRONT/TFEL build complete
+echo.
+echo Verifying installation:
+echo Checking for tfel module in: %SP_DIR%
+if exist "%SP_DIR%\tfel" (
+    echo Found tfel module at %SP_DIR%\tfel
+    dir "%SP_DIR%\tfel"
+) else (
+    echo WARNING: tfel module not found in %SP_DIR%
+    echo Listing SP_DIR contents:
+    dir "%SP_DIR%"
+)
+echo.
+echo Checking PREFIX bin directory:
+if exist "%PREFIX%\bin" (
+    dir "%PREFIX%\bin\*.exe" 2>nul
+)
+echo.
