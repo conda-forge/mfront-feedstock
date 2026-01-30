@@ -30,6 +30,7 @@ requirements:
         - python
         - cross-python_${{ target_platform }}
         - numpy
+        - pybind11
     - cmake <4
     - if: win
       then:
@@ -45,6 +46,7 @@ requirements:
     - numpy
     - python
     - pybind11
+    - pybind11-abi
     - if: linux
       then: zlib
   run:
