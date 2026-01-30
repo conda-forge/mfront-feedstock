@@ -42,9 +42,9 @@ requirements:
     - if: osx
       then: llvm-openmp
   host:
-    - libboost-python-devel
     - numpy
     - python
+    - pybind11
     - if: linux
       then: zlib
   run:
