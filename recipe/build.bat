@@ -68,6 +68,9 @@ echo Applying patches...
 patch -p1 -i "%RECIPE_DIR%\patches\support_llvm-flang.patch"
 if errorlevel 1 exit /b 1
 
+patch -p1 --binary -i "%RECIPE_DIR%\patches\fix_windows_dll_directory.patch"
+if errorlevel 1 exit /b 1
+
 @REM The following patches are already applied in version 5.0.1 and above
 @REM patch -p1 -i "%RECIPE_DIR%\patches\fix_Issue_703.patch"
 @REM if errorlevel 1 exit /b 1

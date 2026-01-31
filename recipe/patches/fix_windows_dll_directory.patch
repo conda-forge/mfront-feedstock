@@ -1,0 +1,98 @@
+--- a/bindings/python/tfel/__init__.py.in
++++ b/bindings/python/tfel/__init__.py.in
+@@ -1,16 +1,19 @@
+ import os
++import pathlib
+ 
+ if os.name == 'nt':
+     versioned_tfelhome="TFELHOME_@TFEL_VERSION@".replace(".", "_").replace("-", "_")
+     if versioned_tfelhome in os.environ:
+         tfelhome = os.environ[versioned_tfelhome]
+     elif "TFELHOME" in os.environ:
+         tfelhome = os.environ["TFELHOME"]
+     else:
+-        import pathlib
+         # remove \python...\site_packages\tfel\__init__.py
+         tfelhome = pathlib.Path(*pathlib.Path(__file__).parts[0:-5])
+         os.environ["TFELHOME"] = str(tfelhome)
+-    os.add_dll_directory(str(tfelhome) + '\\bin')
++    # Only add DLL directory if it exists (handles conda environments)
++    bin_dir = pathlib.Path(str(tfelhome)) / 'bin'
++    if bin_dir.exists():
++        os.add_dll_directory(str(bin_dir))
+ 
+ from ._tfel import *
+--- a/bindings/python/tfel/material/__init__.py.in
++++ b/bindings/python/tfel/material/__init__.py.in
+@@ -1,16 +1,19 @@
+ import os
++import pathlib
+ 
+ if os.name == 'nt':
+     versioned_tfelhome="TFELHOME_@TFEL_VERSION@".replace(".", "_").replace("-", "_")
+     if versioned_tfelhome in os.environ:
+         tfelhome = os.environ[versioned_tfelhome]
+     elif "TFELHOME" in os.environ:
+         tfelhome = os.environ["TFELHOME"]
+     else:
+-        import pathlib
+         # remove bin\python...\site_packages\tfel\material\__init__.py
+         tfelhome = pathlib.Path(*pathlib.Path(__file__).parts[0:-6])
+         os.environ["TFELHOME"] = str(tfelhome)
+-    os.add_dll_directory(str(tfelhome) + '\\bin')
++    # Only add DLL directory if it exists (handles conda environments)
++    bin_dir = pathlib.Path(str(tfelhome)) / 'bin'
++    if bin_dir.exists():
++        os.add_dll_directory(str(bin_dir))
+ 
+ from ._material import *
+--- a/bindings/python/mtest/__init__.py.in
++++ b/bindings/python/mtest/__init__.py.in
+@@ -1,18 +1,21 @@
+ from __future__ import division
+ import os
++import pathlib
+ 
+ if os.name == 'nt':
+     versioned_tfelhome="TFELHOME_@TFEL_VERSION@".replace(".", "_").replace("-", "_")
+     if versioned_tfelhome in os.environ:
+         tfelhome = os.environ[versioned_tfelhome]
+     elif "TFELHOME" in os.environ:
+         tfelhome = os.environ["TFELHOME"]
+     else:
+-        import pathlib
+         # remove bin\python...\site_packages\tfel\__init__.py
+         tfelhome = pathlib.Path(*pathlib.Path(__file__).parts[0:-5])
+         os.environ["TFELHOME"] = str(tfelhome)
+-    os.add_dll_directory(str(tfelhome) + '\\bin')
++    # Only add DLL directory if it exists (handles conda environments)
++    bin_dir = pathlib.Path(str(tfelhome)) / 'bin'
++    if bin_dir.exists():
++        os.add_dll_directory(str(bin_dir))
+ 
+ import tfel.tests
+ import tfel.math
+--- a/bindings/python/mfm_test_generator/__init__.py.in
++++ b/bindings/python/mfm_test_generator/__init__.py.in
+@@ -1,14 +1,19 @@
++import os
++import pathlib
++
+ if os.name == 'nt':
+     versioned_tfelhome="TFELHOME_@TFEL_VERSION@".replace(".", "_").replace("-", "_")
+     if versioned_tfelhome in os.environ:
+         tfelhome = os.environ[versioned_tfelhome]
+     elif "TFELHOME" in os.environ:
+         tfelhome = os.environ["TFELHOME"]
+     else:
+-        import pathlib
+         # remove bin\python...\site_packages\tfel\__init__.py
+         tfelhome = pathlib.Path(*pathlib.Path(__file__).parts[0:-5])
+         os.environ["TFELHOME"] = str(tfelhome)
+-    os.add_dll_directory(str(tfelhome) + '\\bin')
++    # Only add DLL directory if it exists (handles conda environments)
++    bin_dir = pathlib.Path(str(tfelhome)) / 'bin'
++    if bin_dir.exists():
++        os.add_dll_directory(str(bin_dir))
+ 
+ from ._mfm_test_generator import *

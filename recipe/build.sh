@@ -46,6 +46,7 @@ echo "NumPy include directory: ${NUMPY_INCLUDE_DIR}"
 # https://docs.conda.io/projects/conda-build/en/latest/resources/compiler-tools.html#an-aside-on-cmake-and-sysroots
 if [[ "${target_platform}" == osx-* ]]; then
   export LDFLAGS="$LDFLAGS -lm -lpthread -ldl -lz -lomp"
+  CXXFLAGS="${CXXFLAGS} -D_LIBCPP_DISABLE_AVAILABILITY"
 else
   export LDFLAGS="$LDFLAGS -L$PREFIX/lib -lm -lpthread -lrt -ldl -lz -lgomp"
 fi
