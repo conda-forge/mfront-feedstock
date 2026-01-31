@@ -22,8 +22,6 @@ fortran_compiler:
 - gfortran
 fortran_compiler_version:
 - '14'
-libboost_python_devel:
-- '1.88'
 llvm_openmp:
 - '19'
 macos_machine:

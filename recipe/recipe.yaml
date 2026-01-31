@@ -2,8 +2,8 @@ schema_version: 1
 
 context:
   name: mfront
-  version: "5.0.2"
-  sha256: 2d2c91d28b0164121d848b3e0b916947290eb7a93aba2d26954d6d04ccb2d3b7
+  version: "5.1.0"
+  sha256: 1afd98200de332e97e86d109ce0e1aaa8f18cc6c6c81daec3218809509cdfad7
 
 package:
   name: ${{ name|lower }}
@@ -30,6 +30,7 @@ requirements:
         - python
         - cross-python_${{ target_platform }}
         - numpy
+        - pybind11
     - cmake <4
     - if: win
       then:
@@ -42,9 +43,10 @@ requirements:
     - if: osx
       then: llvm-openmp
   host:
-    - libboost-python-devel
     - numpy
     - python
+    - pybind11
+    - pybind11-abi
     - if: linux
       then: zlib
   run:
