@@ -15,7 +15,7 @@ source:
   file_name: tfel-TFEL-${{ version }}.tar.gz
 
 build:
-  number: 0
+  number: 1
   prefix_detection:
     ignore_binary_files: true
 
