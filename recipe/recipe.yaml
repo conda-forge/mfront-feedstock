@@ -45,6 +45,9 @@ requirements:
   host:
     - numpy
     - python
+    # The Python shared library FindPython's Development component needs: its own package, which
+    # python itself stopped depending on with 3.15.
+    - libpython
     - pybind11
     - pybind11-abi
     - if: linux
