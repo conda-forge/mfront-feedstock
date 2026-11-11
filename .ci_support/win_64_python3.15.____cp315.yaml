@@ -21,9 +21,6 @@ pin_run_as_build:
 pybind11_abi:
 - '11'
 python:
-- 3.13.* *_cp313
+- 3.15.* *_cp315
 target_platform:
 - win-64
-zip_keys:
-- - python
-  - channel_sources
