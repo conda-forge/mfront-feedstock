@@ -33,6 +33,9 @@ tar -xzf "${TARBALL_NAME}"
 cd "tfel-TFEL-${PKG_VERSION}"
 echo "Extraction complete, current directory: $(pwd)"
 
+# tfel::getInstallPath() must return the install prefix after conda relocates the package (#41)
+patch -p1 -i "${RECIPE_DIR}/patches/relocatable_install_path.patch"
+
 # Note: Patches for fix_Issue_703 and remove_numpy_init_wrap are not needed
 # for TFEL 5.0.1 as these fixes are already in the upstream source
 

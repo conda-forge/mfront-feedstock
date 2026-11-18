@@ -1,0 +1,19 @@
+--- a/src/Config/GetInstallPath.cxx
++++ b/src/Config/GetInstallPath.cxx
+@@ -109,7 +109,15 @@
+ #if defined _WIN32 || defined _WIN64
+     return "";
+ #else
+-    return PREFIXDIR;
++    // Read the prefix through a volatile pointer, so that the compiler keeps
++    // PREFIXDIR as one contiguous, NUL-terminated string in the binary and
++    // takes its length at run time. Otherwise GCC splits the literal into
++    // chunks that a package manager's binary prefix replacement cannot find
++    // (the build prefix is returned), or bakes in the length of the build
++    // prefix (the result then carries the NUL padding of a shorter
++    // relocated prefix).
++    static const char* volatile prefix = PREFIXDIR;
++    return std::string(prefix);
+ #endif
+   }  // end of getInstallPath
+ 
