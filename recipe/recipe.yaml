@@ -15,9 +15,10 @@ source:
   file_name: tfel-TFEL-${{ version }}.tar.gz
 
 build:
-  number: 3
-  prefix_detection:
-    ignore_binary_files: true
+  # tfel-config and libTFELConfig hard-code the install prefix (PREFIXDIR) as a C string, so binary
+  # files must keep going through prefix replacement (rattler-build's default; the meta.yaml had
+  # detect_binary_files_with_prefix: true). Ignoring them shipped the build-time prefix (#41).
+  number: 4
 
 requirements:
   build:
@@ -39,7 +40,9 @@ requirements:
         - m2-gzip
         - m2-patch
         - clang
-      else: make
+      else:
+        - make
+        - patch
     - if: osx
       then: llvm-openmp
   host:
@@ -81,6 +84,15 @@ tests:
           - test -f $PREFIX/lib/libTFELGlossary.so
           - test -f $PREFIX/lib/libTFELException.so
           - test -f $PREFIX/lib/libTFELUtilities.so
+      # The paths tfel-config and libTFELConfig (tfel::getInstallPath(), which mfront reads its
+      # keyword documentation from) report must point into the environment they are installed in,
+      # not the build prefix (#41). $(echo ...) drops the trailing blank tfel-config prints.
+      - if: unix
+        then:
+          - test "$(echo $(tfel-config --library-path))" = "$PREFIX/lib"
+          - test "$(echo $(tfel-config --includes))" = "-I$PREFIX/include"
+          - test -f $PREFIX/share/doc/mfront/Implicit/Author.md || test -f $PREFIX/share/doc/mfront/Author.md
+          - test -z "$(mfront --help-keyword=Implicit:@Author | grep 'no description available')"
 about:
   license: GPL-3.0-only
   license_file: tfel-TFEL-${{ version }}/LICENCE-GNU-GPL
